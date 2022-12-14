@@ -1,0 +1,44 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #e4e2ce;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.error{
+    background-color: red;
+    color: white;
+    padding: 1rem;
+    font-weight: bold;
+}
+
+label{
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+input{
+    margin-bottom: .5rem;
+}
+
+.nameLabel{
+    display: inline-block;
+    margin-left: 1rem;
+}
+
+.col-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 50%;
+}
+.infocolumns{
+    margin: 1rem 5vw;
+}
+@media only screen and ( min-width: 768px ){
+    .infocolumns{
+        column-count: 2;
+        margin: 1rem 5vw;
+        column-rule: 0.125rem solid #c0fd97;
+    }
+}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %} HSH Delivery Register {% endblock %}
+{% block content %}
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Home Sweet Home Delivery</a>
+        </nav>
+    </header>
+    <h2>Register form</h2>
+    <form method="post">
+        {% if errors  %}
+            {% for error in errors %}
+                <p class="error">{{ error.msg }}</p>
+            {% endfor %}
+        {% endif %}
+        <fieldset style="margin: 0.25rem;">
+            <legend>Register</legend>
+            <label for="firstname" class="nameLabel">First Name</label>
+            <input type="text" name="firstname" id="firstname" placeholder="First Name" value="{{body.firstname}}">
+            <label for="midinitial" class="nameLabel">Middle initial</label>
+            <input type="text" width="3" name="midinitial" id="midinitial" placeholder="Middle Initial" value="{{body.midinitial}}">
+            <label for="lastname" class="nameLabel">Last Name</label>
+            <input type="text" name="lastname" id="lastname" placeholder="Last Name" value="{{body.lastname}}">
+            <br>
+            <label for="email">email</label>
+            <input type="email" name="email" id="username" placeholder="example@someemail.com" value="{{body.email}}">
+            <br>
+            <label for="phone">Phone</label>
+            <input type="tel" name="phone" id="phone" placeholder="Phone" value="{{body.phone}}">
+            <br>
+            <label for="address">Your full address</label>
+            <input type="textarea" name="address" id="address" placeholder="Your full address" value="{{body.address}}">
+            <br>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" placeholder="Must be at least 8 characters long and contain at least one letter, one number, and one special character">
+            <input type="submit" value="Register">
+        </fieldset>
+    </form>
+{% endblock %}

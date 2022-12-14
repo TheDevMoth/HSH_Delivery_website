@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %} HSH Delivery Employee {% endblock %}
+{% block content %}
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Home Sweet Home Delivery</a>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="/employee">Home</a>
+                    <a class="nav-item nav-link" title="Add/Remove/Edit package information" href="/employee/orders">Orders</a>
+                    <a class="nav-item nav-link" title="Add/Remove/Edit user information" href="/employee/customers">Customers</a>
+                    <a class="nav-item nav-link" title="generate reports" href="/employee/reports">Reports</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+{% endblock %}
