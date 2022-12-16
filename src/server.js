@@ -1,10 +1,10 @@
-import {newFirstameSchema, newLastameSchema, newMidinitSchema, newPasswordSchema, emailSchema, sanitizePassword, sanitizeEmail, phoneNumberSchema, newAddressSchema, validate} from './validation';
-import session from 'express-session';
-import nunjucks from 'nunjucks';
-import db from './db';
-import bcrypt from 'bcrypt';
-import express, {Express, Response, Request} from 'express';
-const app : Express = express();
+const { newFirstameSchema, newLastameSchema, newMidinitSchema, newPasswordSchema, emailSchema, sanitizePassword, sanitizeEmail, phoneNumberSchema, newAddressSchema, validate } = require('./validation');
+const session = require('express-session');
+const nunjucks = require('nunjucks');
+const db = require('./db');
+const bcrypt = require('bcrypt');
+const express = require('express');
+const app = express();
 const port = 3000;
 
 // configure nunjucks templates
@@ -23,16 +23,9 @@ app.use(session({
 	}
 }));
 
-declare module 'express-session' {
-    export interface SessionData {
-        email: string;
-        user_id: number;
-        employee: boolean;
-    }
-}
 
 //** ROUTES **//
-app.get('/', (req: Request, res: Response) => {
+app.get('/', async ( req, res) => {
     if (req.session?.employee) {
         res.render('employee.html');
     } else if (req.session?.email) {
@@ -41,7 +34,7 @@ app.get('/', (req: Request, res: Response) => {
         res.redirect('/login');
 }});
 
-app.get('/login', (req: Request, res: Response) => {
+app.get('/login', ( req, res) => {
     if (req.session?.email) {
         res.redirect('/');
     } else {
@@ -49,12 +42,15 @@ app.get('/login', (req: Request, res: Response) => {
     }
 });
 
-app.post('/login', sanitizePassword, sanitizeEmail, async (req: Request, res: Response) => {
+app.post('/login', sanitizePassword, sanitizeEmail, async ( req, res) => {
     const { email, password } = req.body;
     // check if user exists
-    const user = await db.getClientByEmail(email);
+    let user = await db.getClientByEmail(email);
+    user = user[0];
+    console.log(user);
+    
     if (user) {
-        const match = await bcrypt.compare(password, user.password);
+        const match = bcrypt.compareSync(password, user.password);
         if (match) {
             // initialize session
             req.session.email = user.email;
@@ -63,14 +59,15 @@ app.post('/login', sanitizePassword, sanitizeEmail, async (req: Request, res: Re
             res.redirect('/');
             return;
         } else {
-            res.status(400).send('Password does not match');
+            res.status(400).render('login.html', { errors: ['Password does not match'], body: req.body });
             return;
         }
     }
     // check if user is an employee
-    const employee = await db.getEmployeeByEmail(email);
+    let employee = await db.getEmployeeByEmail(email);
+    employee = employee[0];
     if (employee) {
-        const match = await bcrypt.compare(password, employee.password);
+        const match = bcrypt.compareSync(password, employee.password);
         if (match) {
             // initialize session
             req.session.email = employee.email;
@@ -86,7 +83,7 @@ app.post('/login', sanitizePassword, sanitizeEmail, async (req: Request, res: Re
     res.status(400).render('login.html', { errors: ['User does not exist'], body: req.body });
 });
 
-app.get('/logout', (req: Request, res: Response) => {
+app.get('/logout', ( req, res) => {
     if (!req.session?.email) {
         res.redirect('/');
     }
@@ -99,7 +96,7 @@ app.get('/logout', (req: Request, res: Response) => {
     });
 });
 
-app.get('/register', (req: Request, res: Response) => {
+app.get('/register', ( req, res) => {
     if (req.session?.email) {
         res.redirect('/');
     } else {
@@ -108,22 +105,22 @@ app.get('/register', (req: Request, res: Response) => {
 });
 
 app.post('/register', validate([newFirstameSchema, newLastameSchema, newMidinitSchema, newPasswordSchema, emailSchema, phoneNumberSchema, newAddressSchema]), 
-        async (req: Request, res: Response) => {
+        async ( req, res) => {
     const {firstname, lastname, middle, email, password, phone, address} = req.body;
     console.log(req.body);
     
-    const emailExists = await db.getClientByEmail(email);
+    const emailExists = await db.getClientByEmail(email, connection);
     if (emailExists){
         res.render('register.html', {errors: [{msg:'Email already exists'}]});
     } else {
-        const hash = await bcrypt.hash(password, 10);
-        await db.addNewClient(firstname, lastname, middle, email, hash, phone, address);
+        const hash = bcrypt.hashSync(password, 10);
+        db.addNewClient(email, hash, firstname, middle, lastname, phone, address);
         res.redirect('/login');
     }
 });
 
 //** employee Functions */
-app.get('/employee', (req: Request, res: Response) => {
+app.get('/employee', ( req, res) => {
     if (!req.session?.employee) {
         res.redirect('/');
     }
@@ -131,34 +128,36 @@ app.get('/employee', (req: Request, res: Response) => {
 });
 
 // package info
-app.get('/employee/package', (req: Request, res: Response) => {
+app.get('/employee/package', ( req, res) => {
     if (!req.session?.employee) {
         res.redirect('/');
     }
     res.render('package.html');
 });
 
-app.get('/employee/package/add', (req: Request, res: Response) => {
+app.get('/employee/package/add', ( req, res) => {
     if (!req.session?.employee) {
         res.redirect('/');
     }
     res.render('addPackage.html');
 });
 
-app.post('/employee/package/add', async (req: Request, res: Response) => {
+app.post('/employee/package/add', async ( req, res) => {
     if (!req.session?.employee) {
         res.redirect('/');
     }
     const {email, receiver_email, weight, width, height, depth, insurance_amount, delivery_date, category, value, centerId} = req.body;
-    const recInfo = await db.getClientByEmail(receiver_email)["clientid"];
+    const recInfo = await db.getClientByEmail(receiver_email, connection);
+    console.log(recInfo);
+    
     const destination = recInfo["address"];
     const status = 'in transit';
     const last_modification = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const reciver_id = recInfo["clientid"];
-    const senderId = await db.getClientByEmail(email)["clientid"];
-    const national_id = req.session.user_id as number;
+    const receiver_id = recInfo["clientid"];
+    const senderId = await db.getClientByEmail(email, connection);
+    const national_id = req.session.user_id;
 
-    await db.addPackage(weight, width, height, depth, insurance_amount, destination, delivery_date, category, status, value, last_modification, reciver_id,  centerId, senderId, national_id);
+    db.addPackage(weight, width, height, depth, insurance_amount, destination, delivery_date, category, status, value, last_modification, receiver_id,  centerId, senderId, national_id);
     res.render('packageAdded.html', {packageId: 1}); //todo somehow pass the package id
 });
 
@@ -167,3 +166,7 @@ app.post('/employee/package/add', async (req: Request, res: Response) => {
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
+
+
+
+
