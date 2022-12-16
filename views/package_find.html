@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %} HSH Delivery Employee {% endblock %}
+{% block content %}
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/employee">Home Sweet Home Delivery</a>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="/employee">Home</a>
+                    <a class="nav-item nav-link" title="Add/Remove/Edit package information" href="/employee/package">Orders</a>
+                    <a class="nav-item nav-link" title="Add/Remove/Edit user information" href="/employee/customers">Customers</a>
+                    <a class="nav-item nav-link" title="generate reports" href="/employee/reports">Reports</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <!-- package lookup form -->
+        <h3>Find a package</h3>
+        <form method="POST" action="/employee/package/find">
+            <div class="form-group">
+                <label for="packageID">Package ID</label>
+                <input type="text" class="form-control" id="packageID" name="packageID" placeholder="Enter package ID" value="{{package.packageno}}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        {% if package %}
+        <h3>Package Details</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Package Number</th>
+                    <th scope="col">Sender ID</th>
+                    <th scope="col">Recipient ID</th>
+                    <th scope="col">Employee ID</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Weight</th>
+                    <th scope="col">Dimensions</th>
+                    <th scope="col">Pickup Address</th>
+                    <th scope="col">Delivery Address</th>
+                    <th scope="col">Delivery Date</th>
+                    <th scope="col">Package Category</th>
+                    <th scope="col">Delivery Cost</th>
+                    <th scope="col">Sent from</th>
+                    <th scope="col">Value of contents</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ package.packageno }}</td>
+                    <td>{{ package.clientid }}</td>
+                    <td>{{ package.receiverid }}</td>
+                    <td>{{ package.employeeid }}</td>
+                    <td>{{ package.status }}</td>
+                    <td>{{ package.weight }}</td>
+                    <td>{{ package.width + 'x' + package.height + 'x' + package.depth }}</td>
+                    <td>{{ package.pickupAddress }}</td> {# <!--address of center--> #}
+                    <td>{{ package.deliveryAddress }}</td> {# <!--address of receiver--> #}
+                    <td>{{ package.delivery_date }}</td>
+                    <td>{{ package.category }}</td>
+                    <td>{{ package.deliveryCost }}</td> {# <!--calculated from weight--> #}
+                    <td>{{ package.centerType }}</td> {# <!--type from center--> #}
+                    <td>{{ package.value }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><a href="/employee/package/edit/{{package.packageno}}">Edit package</a></p>
+        <p><a href="/employee/package/remove/{{package.packageno}}">Remove Package</a></p>
+        <p><a href="/employee/package/trace/{{package.packageno}}">Trace package</a></p>
+        <p><a href="{{emailtemplate}}">Send Email</a></p>
+        {% if package.status == "in transit" %}
+        <p><a href="/employee/package/delivered/{{package.packageno}}">Mark as delivered</a></p>
+        {% endif %}
+        {% endif %}
+        
+    </main>
+{% endblock %}

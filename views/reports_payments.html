@@ -16,18 +16,28 @@
         </nav>
     </header>
     <main>
-        <div class="infocolumns">
-            <h3>Packages</h3>
-            <a href="/employee/package"><img class="col-img" src="/find_package.jpg" alt="add a package"></a>
-            <br><br>
-            <h3>Users</h3>
-            <a href="/employee/customers"><img class="col-img" src="/users.png" alt="find a package"></a>
-            <br><br><br>
-            <h3>Reports</h3>
-            <a href="/employee/reports"><img class="col-img" src="/reports.png" alt="find a package"></a>
-            <br><br>
-            <h3>Transport</h3>
-            <a href="/employee/transport"><img class="col-img" src="/transport.jpg" alt="find a package"></a>
-        </div>
+        <h3>All confirmed payments</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Package ID</th>
+                    <th scope="col">Sender ID</th>
+                    <th scope="col">Center ID</th>
+                    <th scope="col">Cost</th>
+                    <th scope="col">insurance_amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for package in packages %}
+                <tr>
+                    <td>{{package.packageno}}</td>
+                    <td>{{package.senderid}}</td>
+                    <td>{{package.centerid}}</td>
+                    <td>{{package.cost}}</td>
+                    <td>{{package.insurance_amount}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </main>
 {% endblock %}

@@ -1,27 +1,29 @@
 {% extends "base.html" %}
 {% block title %} HSH Delivery Login {% endblock %}
 {% block content %}
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Home Sweet Home Delivery</a>
-        </nav>
-    </header>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/employee">Home Sweet Home Delivery</a>
+    </nav>
+</header>
+<main>
     <p>Please login to get access to our services</p>
-    {% if errors  %}
-        {% for error in errors %}
-            <p class="error">{{ error }}</p>
-        {% endfor %}
+    {% if errors %}
+    {% for error in errors %}
+    <p class="error">{{ error }}</p>
+    {% endfor %}
     {% endif %}
     <form method="post">
-        <fieldset>
-            <legend>Login</legend>
-            <label for="email">email</label>
-            <input type="email" name="email" id="username" placeholder="example@someemail.com" value="{{body.email}}">
-            <br>
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" placeholder="******">
-            <input type="submit" value="Login">
-        </fieldset>
+        <div class="form-group">
+            <label for="email" class="form-label">email</label>
+            <input type="email" class="form-control" name="email" id="username" placeholder="example@someemail.com" value="{{body.email}}">
+        </div>
+        <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" id="password" placeholder="******">
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
     </form>
     <p>Need an account? register <a href="/register">here</a></p>
+</main>
 {% endblock %}

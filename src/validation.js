@@ -1,7 +1,7 @@
 const { body, validationResult } = require('express-validator');
 
 const newFirstameSchema = body('firstname').trim().isLength({ min: 1 }).withMessage('firstname is required').isAlpha().withMessage('firstname must only contain letters');
-const newMidinitSchema = body('midinitial').trim().isAlpha().withMessage('Middle initial must be a letter').isLength({min:1, max:1}).withMessage('Middle initial must be a single letter');
+const newMidinitSchema = body('minitial').trim().isAlpha().withMessage('Middle initial must be a letter').isLength({min:1, max:1}).withMessage('Middle initial must be a single letter');
 const newLastameSchema = body('lastname').trim().isLength({ min: 1 }).withMessage('lastname is required').isAlpha().withMessage('lastname must only contain letters');
 
 const newAddressSchema = body('address').trim().isLength({ min: 1 }).withMessage('address is required');

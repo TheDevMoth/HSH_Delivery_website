@@ -1,3 +1,4 @@
+const { connect } = require("http2");
 const mysql = require("mysql");
 const sql = require("sql-template-strings");
 const connection = mysql.createConnection({
@@ -48,27 +49,45 @@ async function addNewClient(email, password, firstname, minitial, lastname, phon
 }
 
 async function updateClient(clientId, firstname, minitial, lastname,
-    phone, address, birthdate, email, password){
+    phone, address, email, password){
+    if (password){
         return new Promise((resolve, reject) => {
             connection.query(sql`UPDATE client SET 
-                ${(firstname) ? `firstname = ${firstname},` : ''}
-                ${(minitial) ? `minitial = ${minitial},` : ''}
-                ${(lastname) ? `lastname = ${lastname},` : ''}
-                ${(phone) ? `phone_number = ${phone},` : ''}
-                ${(address) ? `address = ${address},` : ''}
-                ${(birthdate) ? `birthdate = ${birthdate},` : ''}
-                ${(email) ? `email = ${email},` : ''}
-                ${(password) ? `password = ${password},` : ''}
-                ${(clientId) ? `clientid = ${clientId}` : ''} 
-                WHERE clientid = ${clientId}`, (err, result) => {// client id is not changed it's there to fix the problem of the comma at the end of the query
+                fname = ${firstname},
+                minitial = ${minitial},
+                lname = ${lastname},
+                phone_number = ${phone},
+                address = ${address},
+                email = ${email},
+                WHERE clientid = ${clientId}`, (err, result) => {
             if (err) {
                 console.log(err);
                 reject(err);
             } else {
                 resolve(result);
             }
-        });
+        });    
     });
+    } else {
+        return new Promise((resolve, reject) => {
+            connection.query(sql`UPDATE client SET 
+                fname = ${firstname},
+                minitial = ${minitial},
+                lname = ${lastname},
+                phone_number = ${phone},
+                address = ${address},
+                email = ${email},
+                password = ${password}
+                WHERE clientid = ${clientId}`, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });    
+        });
+    }
 }
 
 async function deleteClient(clientId){
@@ -127,7 +146,7 @@ async function addNewEmployee(email, password, firstname, minitial, lastname, ph
 //***** CENTER *****//
 async function getCenterById(centerId){
     return new Promise((resolve, reject) => {
-        connection.query(sql`SELECT * FROM center WHERE centerid = ${centerId}`, (err, result) => {
+        connection.query(sql`SELECT * FROM retail_center WHERE centerid = ${centerId}`, (err, result) => {
             if (err) {
                 console.log(err);
                 reject(err);
@@ -138,10 +157,31 @@ async function getCenterById(centerId){
     });
 }
 
-//***** PACKAGE *****//
-async function addPackage(weight, width, height, depth, insurance_amount, destination, delivery_date, category, status, value, last_modification, reciver_id, centerId, senderId, national_id){
+async function createCenter(type, address){
     return new Promise((resolve, reject) => {
-        connection.query(sql`INSERT INTO package (weight, width, height, depth, insurance_amount, destination, delivery_date, category, status, value, last_modification, senderid, centerid, receiverid, employeeid) VALUES (${weight}, ${width}, ${height}, ${depth}, ${insurance_amount}, ${destination}, ${delivery_date}, ${category}, ${status}, ${value}, ${last_modification}, ${reciver_id}, ${centerId}, ${senderId}, ${national_id})`, (err, result) => {
+        connection.query(sql`INSERT INTO location(location_type) VALUES ('station'); 
+        INSERT INTO station(locationid, address) VALUES ((SELECT max(locationid) FROM location), ${address});`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                connection.query(sql`INSERT INTO retail_center (center_type, address) VALUES (${type}, ${address})`, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            }
+        });
+    });   
+}
+
+//***** PACKAGE *****//
+async function addPackage(packageNo, weight, width, height, depth, insurance_amount, destination, delivery_date, category, status, value, last_modification, reciver_id, centerId, senderId, national_id){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`INSERT INTO package (packageno, weight, width, height, depth, insurance_amount, destination, delivery_date, category, status, value, last_modification, senderid, centerid, receiverid, employeeid) VALUES (${Number(packageNo)}, ${weight}, ${width}, ${height}, ${depth}, ${insurance_amount}, ${destination}, ${delivery_date}, ${category}, ${status}, ${value}, ${last_modification}, ${reciver_id}, ${centerId}, ${senderId}, ${national_id})`, (err, result) => {
             if (err) {
                 console.log(err);
                 reject(err);
@@ -154,7 +194,7 @@ async function addPackage(weight, width, height, depth, insurance_amount, destin
 
 async function getPackageByNumber(packageNo){
     return new Promise((resolve, reject) => {
-        connection.query(sql`SELECT * FROM package WHERE packageno = ${packageNo}`, (err, result) => {
+        connection.query(sql`SELECT * FROM package WHERE packageno = ${Number(packageNo)}`, (err, result) => {
             if (err) {
                 console.log(err);
                 reject(err);
@@ -206,7 +246,7 @@ async function getPackageByDate(startingDate, endingDate){
 
 async function deletePackage(packageNo){
     return new Promise((resolve, reject) => {
-        connection.query(sql`DELETE FROM package WHERE packageno = ${packageNo}`, (err, result) => {
+        connection.query(sql`DELETE FROM package WHERE packageno = ${Number(packageNo)}`, (err, result) => {
             if (err) {
                 console.log(err);
                 reject(err);
@@ -222,21 +262,21 @@ async function updatePackage(packageNo, national_id, weight, width, height, dept
                        reciver_id, centerId, senderId){
     return new Promise((resolve, reject) => {
         connection.query(sql`UPDATE package SET 
-        ${(weight)? `weight = ${weight},`: ''}
-        ${(width)? `width = ${width},`: ''}
-        ${(height)? `height = ${height},`: ''}
-        ${(depth)? `depth = ${depth},`: ''}
-        ${(insurance_amount)? `insurance_amount = ${insurance_amount},`: ''}
-        ${(destination)? `destination = ${destination},`: ''}
-        ${(delivery_date)? `delivery_date = ${delivery_date},`: ''}
-        ${(category)? `category = ${category},`: ''}
-        ${(status)? `status = ${status},`: ''}
-        ${(value)? `value = ${value},`: ''}
-        ${(last_modification)? `last_modification = ${last_modification},`: ''}
-        ${(reciver_id)? `clientid = ${reciver_id},`: ''}
-        ${(centerId)? `centerid = ${centerId},`: ''}
-        ${(senderId)? `received_clientid = ${senderId},`: ''}
-        ${(national_id)? `national_id = ${national_id}`: ''}
+        weight = ${weight}, 
+        width = ${width}, 
+        height = ${height}, 
+        depth = ${depth}, 
+        insurance_amount = ${insurance_amount}, 
+        destination = ${destination}, 
+        delivery_date = ${delivery_date}, 
+        category = ${category}, 
+        status = ${status}, 
+        value = ${value}, 
+        last_modification = ${last_modification}, 
+        senderid = ${reciver_id}, 
+        centerid = ${centerId},
+        receiverid = ${senderId},
+        employeeid = ${national_id}
         WHERE packageno = ${packageNo}`, (err, result) => {
             if (err) {
                 console.log(err);
@@ -248,8 +288,192 @@ async function updatePackage(packageNo, national_id, weight, width, height, dept
     });   
 }
 
-async function tracePackage(packageNo){
-    //TODO
+//** add transport event **//
+async function addTransportEvent(scheduleNo){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`INSERT INTO location (location_type) VALUES ("transport_event")`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                connection.query(sql`INSERT INTO transport_event (locationid, scheduleno) VALUES (LAST_INSERT_ID(), ${scheduleNo})`, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            }
+        });
+    });
+}
+
+async function getIsInHistory(packageNo){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`SELECT * FROM is_in WHERE packageno = ${Number(packageNo)}`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+async function getLocations(locationids){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`SELECT * FROM location WHERE locationid IN (${locationids})`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+async function getTransportEvents(locationids){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`SELECT * FROM transport_event WHERE locationid IN (${locationids})`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+async function getStations(locationids){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`SELECT * FROM station WHERE locationid IN (${locationids})`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+//* Report Queries *//
+async function getPackagesBetweenTwoDates(startingDate, endingDate, status){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`SELECT * FROM package WHERE delivery_date BETWEEN ${startingDate} AND ${endingDate} AND status = ${status}`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+async function getNoOfTypesBetweenTwoDates(startingDate, endingDate){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`SELECT category, COUNT(*) AS count FROM package WHERE delivery_date BETWEEN ${startingDate} AND ${endingDate} GROUP BY category`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+async function searchPackages(category, location, status){
+    location = `%${location}%`;
+    if (category && status){
+        return new Promise((resolve, reject) => {
+            connection.query(sql`SELECT p.*, l.location_type FROM package p NATURAL JOIN is_in i
+                                    NATURAL JOIN location l 
+                                    WHERE p.category = ${category}
+                                    AND p.status = ${status}
+                                    AND l.location_type LIKE ${location}`, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    } else if (category){
+        return new Promise((resolve, reject) => {
+            connection.query(sql`SELECT * FROM package p NATURAL JOIN is_in i
+                                    NATURAL JOIN location l 
+                                    WHERE p.category = ${category}
+                                    AND l.location_type LIKE ${location}`, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    } else if (status){
+        return new Promise((resolve, reject) => {
+            connection.query(sql`SELECT * FROM package p NATURAL JOIN is_in i
+                                    NATURAL JOIN location l 
+                                    WHERE p.status = ${status}
+                                    AND l.location_type LIKE ${location}`, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    } else {
+        return new Promise((resolve, reject) => {
+            connection.query(sql`SELECT * FROM package p NATURAL JOIN is_in i
+                                    NATURAL JOIN location l 
+                                    WHERE l.location_type LIKE ${location}`, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+}
+
+async function getPackagesSentOrReceivedByClient(clientid){
+    return new Promise((resolve, reject) => {
+        connection.query(sql`SELECT * FROM package WHERE senderid = ${clientid} OR receiverid = ${clientid}`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+async function deliverPackage(packageNo){
+    const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    return new Promise((resolve, reject) => {
+        connection.query(sql`UPDATE package SET status = 'delivered', delivery_date = ${date}, last_modification = ${date} WHERE packageno = ${packageNo}`, (err, result) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
 }
 
 
@@ -268,7 +492,18 @@ module.exports = {
     getPackageByDate,
     deletePackage,
     updatePackage,
-    tracePackage,
+    getIsInHistory,
     deleteClient,
-    updateClient
+    updateClient,
+    createCenter,
+    addTransportEvent,
+    getLocations,
+    getTransportEvents,
+    getStations,
+    getPackagesBetweenTwoDates,
+    getNoOfTypesBetweenTwoDates,
+    searchPackages,
+    getPackagesSentOrReceivedByClient,
+    deliverPackage
+
 }

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %} HSH Delivery Employee {% endblock %}
+{% block content %}
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/employee">Home Sweet Home Delivery</a>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/employee">Home</a>
+                <a class="nav-item nav-link" title="Add/Remove/Edit package information" href="/employee/package">Orders</a>
+                <a class="nav-item nav-link" title="Add/Remove/Edit user information" href="/employee/customers">Customers</a>
+                <a class="nav-item nav-link" title="generate reports" href="/employee/reports">Reports</a>
+                <a class="nav-item nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+</header>
+<main>
+    <h3>Package trace of Package {{packageNo}}</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Location ID</th>
+                <th scope="col">Address/Transport Schedule Number</th>
+                <th scope="col">Location Type</th>
+                <th scope="col">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trace in traces %}
+            <tr>
+                <td>{{trace.locationid}}</td>
+                <td>{{trace.locationInfo}}</td>
+                <td>{{trace.location_type}}</td>
+                <td>{{trace.date}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
+
+{% endblock %}

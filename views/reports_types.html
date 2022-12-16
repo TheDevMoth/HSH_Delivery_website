@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %} HSH Delivery Employee {% endblock %}
+{% block content %}
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/employee">Home Sweet Home Delivery</a>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="/employee">Home</a>
+                    <a class="nav-item nav-link" title="Add/Remove/Edit package information" href="/employee/package">Orders</a>
+                    <a class="nav-item nav-link" title="Add/Remove/Edit user information" href="/employee/customers">Customers</a>
+                    <a class="nav-item nav-link" title="generate reports" href="/employee/reports">Reports</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <form action="/employee/reports/types" method="post">
+            <div class="form-group">
+                <label for="start_date">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <br><br>
+        {% if packages %}
+        <h3>Number of types</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Category</th>
+                    <th scope="col">count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for package in packages %}
+                <tr>
+                    <td>{{ package.category }}</td>
+                    <td>{{ package.count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </main>
+{% endblock %}
