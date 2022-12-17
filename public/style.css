@@ -12,6 +12,7 @@ main{
 
 .mainContainer{
     background-color: #e4e2ce;
+    min-height: 1080px;
 }
 
 .error{
@@ -37,8 +38,8 @@ input{
 img{
     margin: 0 auto;
     width: 400px;
-    height: auto;
-    border-radius: 90%;
+    height: 300px;
+    border-radius: 10%;
 }
 
 .infocolumns{

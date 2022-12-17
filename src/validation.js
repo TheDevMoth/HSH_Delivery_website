@@ -18,8 +18,23 @@ const phoneNumberSchema = body('phone').trim().isMobilePhone('any').withMessage(
 const sanitizePassword = body('password').trim();
 const sanitizeEmail = body('email').trim();
 
+const recEmailSchema = body('email').trim().normalizeEmail()
+    .isEmail().withMessage('Email must be a valid email address')
 
-const validate = (validations) => {
+const widthSchema = body('width').trim()
+    .isNumeric().withMessage('Width must be a number')
+    .custom((value, { req }) => {
+        if (value < 0) {
+            throw new Error('Width must be a positive number');
+        } else if (value > 20) {
+            throw new Error('Width must be less than 20 meters');
+        }
+        return true;
+    });
+
+
+
+const validate = (route,validations) => {
   return async (req, res, next) => {
     await Promise.all(validations.map(validation => validation.run(req)));
 
@@ -28,7 +43,7 @@ const validate = (validations) => {
       return next();
     }
     console.log(errors);
-    res.status(400).render('register.html', { errors: errors.array(), body: req.body });
+    res.status(400).render(route, { errors: errors.array(), body: req.body });
   };
 };
 
@@ -42,5 +57,7 @@ module.exports = {
     sanitizePassword,
     sanitizeEmail,
     phoneNumberSchema,
+    recEmailSchema,
+    widthSchema,
     validate
 };

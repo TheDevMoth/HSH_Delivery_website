@@ -1,4 +1,3 @@
-const { connect } = require("http2");
 const mysql = require("mysql");
 const sql = require("sql-template-strings");
 const connection = mysql.createConnection({

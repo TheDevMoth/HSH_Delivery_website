@@ -1,4 +1,4 @@
-const { newFirstameSchema, newLastameSchema, newMidinitSchema, newPasswordSchema, emailSchema, sanitizePassword, sanitizeEmail, phoneNumberSchema, newAddressSchema, validate } = require('./validation');
+const { newFirstameSchema, newLastameSchema, newMidinitSchema, newPasswordSchema, emailSchema, sanitizePassword, sanitizeEmail, phoneNumberSchema, newAddressSchema, recEmailSchema, widthSchema, validate } = require('./validation');
 const session = require('express-session');
 const nunjucks = require('nunjucks');
 const db = require('./db');
@@ -159,7 +159,7 @@ app.get('/register', (req, res) => {
     }
 });
 
-app.post('/register', validate([newFirstameSchema, newLastameSchema, newMidinitSchema, newPasswordSchema, emailSchema, phoneNumberSchema, newAddressSchema]), 
+app.post('/register', validate('register.html', [newFirstameSchema, newLastameSchema, newMidinitSchema, newPasswordSchema, emailSchema, phoneNumberSchema, newAddressSchema]), 
         async (req, res) => {
     const {firstname, lastname, minitial, email, password, phone, address} = req.body;
     
@@ -207,7 +207,7 @@ app.get('/employee/package/add', (req, res) => {
     res.render('package_add.html');
 });
 
-app.post('/employee/package/add', async (req, res) => {
+app.post('/employee/package/add', validate('package_add.html', [emailSchema, recEmailSchema, widthSchema]), async (req, res) => {
     if (!req.session?.employee) {
         res.redirect('/'); return;
     }
@@ -247,7 +247,7 @@ app.get('/employee/package/edit/:packageNo', async (req, res) => {
     }
     let packageInfo = await db.getPackageByNumber(req.params.packageNo);
     packageInfo = packageInfo[0];
-    res.render('package_add.html', {editForm:true, packageInfo: packageInfo});
+    res.render('package_add.html', {editForm:true, body: packageInfo});
 });
 
 // edit package

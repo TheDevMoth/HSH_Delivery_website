@@ -18,10 +18,14 @@
     </nav>
 </header>
 <main>
-    <!-- create package form -->
+    {% if errors  %}
+        {% for error in errors %}
+            <p class="error">{{ error.msg }}</p>
+        {% endfor %}
+    {% endif %}
     {% if editForm %}
-    <h3>Package {{packageInfo.packageno}} information:</h3>
-    <form action="/employee/package/edit/{{packageInfo.packageno}}" method="post">
+    <h3>Package {{body.packageno}} information:</h3>
+    <form action="/employee/package/edit/{{body.packageno}}" method="post">
     {% else %}
         <h3>Add a package</h3>
         <form action="/employee/package/add" method="post">
@@ -29,63 +33,63 @@
             <div class="form-group">
                 <label class="form-label" for="email">client email</label>
                 <input type="email" class="form-control" id="email" name="email"
-                    placeholder="Enter the customer's email" value="{{packageInfo.email}}">
+                    placeholder="Enter the customer's email" value="{{body.email}}">
             </div>
             <div class="form-group">
                 <label class="form-label" for="receiver_email">Receiver email</label>
                 <input type="email" class="form-control" id="receiver_email" name="receiver_email"
-                    placeholder="Enter the receiver's email" value="{{packageInfo.receiver_email}}">
+                    placeholder="Enter the receiver's email" value="{{body.receiver_email}}">
             </div>
             <div class="form-group">
                 <label class="form-label" for="weight">Package weight (g)</label>
                 <input type="text" class="form-control" id="weight" name="weight" placeholder="Enter package weight"
-                    value="{{packageInfo.weight}}">
+                    value="{{body.weight}}">
             </div>
             <div class="row form-group">
                 <div class="col-4">
                     <label class="form-label" for="height">Package height (m)</label>
                     <input type="text" class="form-control" id="height" name="height" placeholder="Enter package height"
-                        value="{{packageInfo.height}}">
+                        value="{{body.height}}">
                 </div>
                 <div class="col-4">
                     <label class="form-label" for="width">Package Width (m)</label>
                     <input type="text" class="form-control" id="width" name="width" placeholder="Enter package width"
-                        value="{{packageInfo.width}}">
+                        value="{{body.width}}">
                 </div>
                 <div class="col-4">
                     <label class="form-label" for="depth">Package Depth (m)</label>
                     <input type="text" class="form-control" id="depth" name="depth" placeholder="Enter package depth"
-                        value="{{packageInfo.depth}}">
+                        value="{{body.depth}}">
                 </div>
             </div>
             <div class="form-group">
                 <label class="form-label" for="insurance_amount">Package insurance amount ($)</label>
                 <input type="text" class="form-control" id="insurance_amount" name="insurance_amount"
-                    placeholder="Enter package insurance amount" value="{{packageInfo.insurance_amount}}">
+                    placeholder="Enter package insurance amount" value="{{body.insurance_amount}}">
             </div>
             <div class="form-group">
                 <label class="form-label" for="delivery_date">Enter expected Delivery date</label>
                 <input type="date" class="form-control" id="delivery_date" name="delivery_date"
-                    placeholder="Enter package insurance amount" value="{{packageInfo.delivery_date}}">
+                    placeholder="Enter package insurance amount" value="{{body.delivery_date}}">
             </div>
             <div class="form-group">
                 <label class="form-label" for="category">Contents Category</label>
                 <input type="text" class="form-control" id="category" name="category"
-                    placeholder="Enter package Category" value="{{packageInfo.category}}">
+                    placeholder="Enter package Category" value="{{body.category}}">
             </div>
             <div class="form-group">
                 <label class="form-label" for="value">Contents Value</label>
                 <input type="text" class="form-control" id="value" name="value" placeholder="Enter package value"
-                    value="{{packageInfo.value}}">
+                    value="{{body.value}}">
             </div>
             {% if editForm %}
             <div class="form-group">
                 <label class="form-label" for="status">Status</label>
-                <input type="text" class="form-control" id="status" name="status" placeholder="Enter status" value="{{packageInfo.status}}"></textarea>
+                <input type="text" class="form-control" id="status" name="status" placeholder="Enter status" value="{{body.status}}"></textarea>
             </div>
             <div class="form-group">
                 <label class="form-label" for="destination">Destination</label>
-                <textarea class="form-control" id="destination" name="destination" placeholder="Enter destination">{{packageInfo.destination}}</textarea>
+                <textarea class="form-control" id="destination" name="destination" placeholder="Enter destination">{{body.destination}}</textarea>
             </div>
             <button type="submit" class="btn btn-primary">Update</button>
             {% else %}
