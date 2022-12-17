@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %} HSH Delivery Employee {% endblock %}
+{% block content %}
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/client">Home Sweet Home Delivery</a>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/client">Home</a>
+                <a class="nav-item nav-link" title="Check package information" href="/client/packages">Orders</a>
+                <a class="nav-item nav-link" title="Add/Remove/Edit user information" href="/client/account">Customers</a>
+                <a class="nav-item nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+</header>
+<main>
+    <form method="post">
+        {% if errors %}
+        {% for error in errors %}
+        <p class="error">{{ error.msg }}</p>
+        {% endfor %}
+        {% endif %}
+        <div class="row form-group">
+            <div class="col-4">
+                <label for="firstname" class="form-label">First Name</label>
+                <input type="text" class="form-control" name="firstname" id="firstname" placeholder="First Name"
+                    value="{{client.fname}}">
+            </div>
+            <div class="col-4">
+                <label for="middle" class="form-label">Middle initial</label>
+                <input type="text" class="form-control" width="3" name="middle" id="middle" placeholder="Middle Initial"
+                    value="{{client.minitial}}">
+            </div>
+            <div class="col-4">
+                <label for="lastname" class="form-label">Last Name</label>
+                <input type="text" class="form-control" name="lastname" id="lastname" placeholder="Last Name"
+                    value="{{client.lname}}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="email">email</label>
+            <input type="email" class="form-control" name="email" id="username" placeholder="example@someemail.com"
+                value="{{client.email}}">
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="phone">Phone</label>
+            <input type="tel" class="form-control" name="phone" id="phone" placeholder="Phone" value="{{body.phone_number}}">
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="address">Your full address</label>
+            <textarea class="form-control" name="address" id="address"
+                placeholder="Your full address">{{client.address}}</textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="password">Your new password (optional)</label>
+            <input type="password" class="form-control" name="password" id="password" placeholder="Must be at least 8 characters long and contain at least one letter, one number, and one special character">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</main>
+
+{% endblock %}

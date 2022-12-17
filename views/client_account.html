@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %} HSH Delivery Employee {% endblock %}
+{% block content %}
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/client">Home Sweet Home Delivery</a>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="/client">Home</a>
+                    <a class="nav-item nav-link" title="Check package information" href="/client/packages">Orders</a>
+                    <a class="nav-item nav-link" title="Add/Remove/Edit user information" href="/client/account">Customers</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <!-- show of user information -->
+            <h3>Account Information</h3>
+            <table class="table">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Address</th>
+                </tr>
+                <tr>
+                    <td>{{ user.fname }} {{ user.lname}}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone_number }}</td>
+                    <td>{{ user.address }}</td>
+                </tr>
+            </table>
+            <br>
+            <a href="/client/account/edit/{{ user.clientid }}">Edit account information</a>
+            <br><br>
+        </div>
+    </main>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %} HSH Delivery Employee {% endblock %}
+{% block content %}
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/client">Home Sweet Home Delivery</a>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="/client">Home</a>
+                    <a class="nav-item nav-link" title="Check package information" href="/client/packages">Orders</a>
+                    <a class="nav-item nav-link" title="Add/Remove/Edit user information" href="/client/account">Customers</a>
+                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <h3>Hello dear customer</h3>
+        <div class="infocolumns">
+            <h3>Packages</h3>
+            <a href="/client/packages"><img class="col-img" src="/find_package.jpg" alt="Check your packages"></a>
+            <br><br><br>
+            <h3>account</h3>
+            <a href="/client/account"><img class="col-img" src="/users.png" alt="find a package"></a>
+            <br><br>
+        </div>
+        <h3>How to send a package?</h3>
+        <p>
+            <ul>
+                <li>Pack your item in a box make sure its contents are secured properly</li>
+                <li>Take your package to the closest drop off point where an employee will process your package</li>
+                <li>Remember to prepare the following information</li>
+                <ul>
+                    <li>Sender's email</li>
+                    <li>Receiver's email</li>
+                    <li>Package contents category (Liquid, Chemical, Food, etc.)</li>
+                    <li>Package contents value</li>
+                </ul>
+        </p>
+
+    </main>
+{% endblock %}

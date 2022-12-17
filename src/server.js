@@ -66,12 +66,23 @@ async function tracePackage(packageNo) {
     return trace;
 }
 
+//create an express middleware to check if the user is logged in
+function isClient(req, res, next) {
+    if (req.session?.employee) {
+        res.redirect('/');
+    } else if (req.session?.email) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
 //** ROUTES **//
 app.get('/', async (req, res) => {
     if (req.session?.employee) {
-        res.render('employee.html');
+        res.redirect('/employee');
     } else if (req.session?.email) {
-        res.render('user.html');
+        res.redirect('/client');
     } else {
         res.redirect('/login');
 }});
@@ -318,7 +329,6 @@ app.get('/employee/package/trace/:packageNo', async (req, res) => {
     const packageNo = req.params.packageNo;
     
     const trace = await tracePackage(packageNo);
-    console.log(trace);
     res.render('package_trace_employee.html', {traces: trace, packageNo: packageNo});
 });
 
@@ -365,7 +375,11 @@ app.get('/employee/customers/remove/:clientid', async (req, res) => {
         res.redirect('/'); return;
     }
     const clientid = req.params.clientid;
-    await db.deleteClient(clientid);
+    try {
+        await db.deleteClient(clientid);
+    } catch (error) {
+        res.render('success.html', {header:"Client could not be removed", body:'There are bound packages to this client'});
+    }
     res.render('success.html', {header:"Client removed succussfully", body:''});
 });
 
@@ -465,11 +479,54 @@ app.post('/employee/reports/client', async (req, res) => {
     res.render('reports_client.html', {packages: packages});
 });
 
-
-
-
 //** client Functions **//
+app.get('/client', isClient, (req, res) => {
+    res.render('client.html');
+});
 
+app.get('/client/packages', isClient, async (req, res) => {
+    let packages = await db.getPackagesSentOrReceivedByClient(req.session.user_id);
+    
+    for (let i = 0; i < packages.length; i++) {
+        packages[i]["cost"] = calculateCost(packages[i]["weight"], packages[i]["height"], packages[i]["width"], packages[i]["depth"]);
+        let receiver_email = await db.getClientById(packages[i]["receiverid"]);
+        packages[i]["receiver_email"] = receiver_email[0]["email"];
+        let sender_email = await db.getClientById(packages[i]["senderid"]);
+        packages[i]["sender_email"] = sender_email[0]["email"];
+    }
+    res.render('client_packages.html', {packages: packages, clientid: req.session.user_id});
+});
+
+app.get('/client/trace/:packageNo', isClient, async (req, res) => {
+    const packageNo = req.params.packageNo;
+    const trace = await tracePackage(packageNo);
+    res.render('package_trace_client.html', {traces: trace, packageNo: packageNo});
+});
+
+app.get('/client/account', isClient, async (req, res) => {
+    let accountInfo = await db.getClientById(req.session.user_id);
+    accountInfo = accountInfo[0];
+    res.render('client_account.html', {user: accountInfo});
+});
+
+app.get('/client/account/edit/:clientid', isClient, async (req, res) => {
+    const clientid = req.params.clientid;
+    let accountInfo = await db.getClientById(clientid);
+    accountInfo = accountInfo[0];
+    res.render('client_update_info.html', {client: accountInfo});
+});
+
+app.post('/client/account/edit/:clientid', isClient, async (req, res) => {
+    const clientid = req.params.clientid;
+    const {firstname, lastname, minitial, email, password, phone, address} = req.body;
+    
+    if(!password.trim()) {
+        await db.updateClient(clientid, firstname, minitial, lastname, phone, address, email);
+    } else {
+        await db.updateClient(clientid, firstname, minitial, lastname, phone, address, bcrypt.hashSync(password, 10));
+    }
+    res.render('success_client.html', {header:"Information updated succussfully", body:''});
+});
 
 // listen on port 3000
 app.listen(port, () => {

@@ -50,7 +50,7 @@ async function addNewClient(email, password, firstname, minitial, lastname, phon
 
 async function updateClient(clientId, firstname, minitial, lastname,
     phone, address, email, password){
-    if (password){
+    if (!password){
         return new Promise((resolve, reject) => {
             connection.query(sql`UPDATE client SET 
                 fname = ${firstname},
@@ -58,8 +58,8 @@ async function updateClient(clientId, firstname, minitial, lastname,
                 lname = ${lastname},
                 phone_number = ${phone},
                 address = ${address},
-                email = ${email},
-                WHERE clientid = ${clientId}`, (err, result) => {
+                email = ${email}
+                WHERE clientid = ${Number(clientId)}`, (err, result) => {
             if (err) {
                 console.log(err);
                 reject(err);
@@ -78,7 +78,7 @@ async function updateClient(clientId, firstname, minitial, lastname,
                 address = ${address},
                 email = ${email},
                 password = ${password}
-                WHERE clientid = ${clientId}`, (err, result) => {
+                WHERE clientid = ${Number(clientId)}`, (err, result) => {
                 if (err) {
                     console.log(err);
                     reject(err);
